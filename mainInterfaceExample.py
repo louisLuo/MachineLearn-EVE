@@ -5,6 +5,8 @@ import numpy as np
 #我们对数据的展示，使用 pyplot
 import matplotlib.pyplot as plt
 
+import scipy.io as sio
+
 #引入算法
 import linearRegression
 import logisticRegression
@@ -72,7 +74,7 @@ import logisticRegression
 # linear regression
 
 # # 获取外部数据
-# data = pd.read_csv('ex1data1.CSV')
+# data = pd.read_csv('Data/ex1data1.CSV')
 # data = data.as_matrix()  # 将数据转化为矩阵
 # X = np.array(data[:,0]) #创建 np 的一个数组哦
 # y = np.array(data[:,1])
@@ -101,33 +103,172 @@ import logisticRegression
 
 # ==========================
 # logistic regression
+#
+#
+#
+# data = pd.read_csv('Data/ex2data2.CSV') #注意 CSV 的头部部分必须要有，不能开头就是 数字
+# data = data.as_matrix();
+# X = np.array(data[:,0:2]);# 到第3列，但是不包括第3列
+# y = np.array(data[:,2]);
+# m = len(y);
+#
+# # ---  制作一个图形现实
+# positive = np.where(y==1.)  # 获得所有为1 的位置，返回一个矩阵
+# negative = np.where(y==0)   # 获得所有为0 的位置，返回一个矩阵
+#
+# # plt.plot(X[positive,0],X[positive,1],'r+') #通过 positive 矩阵查找位置，所以事实上，逗号前后其实就是矩阵么，r+ 表示 red + 号
+# # plt.plot(X[negative,0],X[negative,1],'bo') #通过 negative 矩阵查找位置，所以事实上，逗号前后其实就是矩阵么，bo 表示 bule o 号
+# # plt.show()
+#
+# #按照惯例往 X 里面添加 x0
+#
+# Xones = np.column_stack((np.ones((m,1)),X))
+# # print(X)
+# theta = np.array([1, 1, 1]);
+# iterations = 1000
+# lambdas = 10
+# alpha = 0.05
+# J, theta = logisticRegression.logisticRegression(Xones,y,theta,alpha,iterations,lambdas,False)
+# print("the best result ",J)
+# print(theta)
+#
+# # # #测试所有alpha的值
+# # alpha = np.array([0.3, 0.1, 0.03, 0.01])
+# # logisticRegression.alphaRateTest(Xones,y,theta,alpha,iterations)
 
-data = pd.read_csv('ex2data2.CSV') #注意 CSV 的头部部分必须要有，不能开头就是 数字
-data = data.as_matrix();
-X = np.array(data[:,0:2]);# 到第3列，但是不包括第3列
-y = np.array(data[:,2]);
-m = len(y);
+# ==========================
+# logistic regression picture identification
 
-# ---  制作一个图形现实
-positive = np.where(y==1.)  # 获得所有为1 的位置，返回一个矩阵
-negative = np.where(y==0)   # 获得所有为0 的位置，返回一个矩阵
+dataMat = sio.loadmat('Data/ex3data1.mat')
+# print(dataMat['X'])
+X = np.mat(dataMat['X'])
+y = np.mat(dataMat['y'])
+# 将数据打乱，然后取 6 2 2 比例那train 数据
+sourceAll = np.column_stack((X,y))
+p = np.random.permutation(sourceAll.shape[0])
+X = sourceAll[p, :][:,0:-1]
+y = sourceAll[p, :][:,-1]
 
-# plt.plot(X[positive,0],X[positive,1],'r+') #通过 positive 矩阵查找位置，所以事实上，逗号前后其实就是矩阵么，r+ 表示 red + 号
-# plt.plot(X[negative,0],X[negative,1],'bo') #通过 negative 矩阵查找位置，所以事实上，逗号前后其实就是矩阵么，bo 表示 bule o 号
+# trainNumber = len(X[:,0])*.6
+m,n = X.shape
+trainNumber = int(m*.6)
+CVNumber = int(trainNumber+m*.2)
+testNumber = int(CVNumber+m*.2)
+
+classssIndex = np.where(y==10)[0] # 找到所有的 10 把他们全部变成0
+y[classssIndex,:] = 0
+
+Xtrain = X[0:trainNumber,:]
+ytrain = y[0:trainNumber,:]
+
+XCV = X[trainNumber:CVNumber,:]
+yCV = y[trainNumber:CVNumber,:]
+
+# Xtrain = X
+Xtest = X[trainNumber:testNumber,:]
+ytest = y[trainNumber:testNumber,:]
+
+pictureWidth = 20
+pictureHight = 20
+
+# 取第一张照片
+gridData0 = Xtrain[0,:]
+# 重新排列成图片的样子
+grid0 = gridData0.reshape(pictureWidth,pictureHight)
+
+# 一群数据拿出显示
+display_rows = 10
+display_cols  = 10
+index = 0
+# 数据是有方向的，这里的照片的数据方向也是不同的，所以需要添加 .T 这个方法来让数据变得正常
+for i in range(0,display_cols):
+    for j in range(0,display_rows):
+        gridData = Xtrain[index,:]
+        gridData = gridData.reshape((pictureWidth,pictureHight))
+        try:
+            gridRow = np.row_stack((gridRow,gridData.T))
+        except Exception as e:
+            gridRow = gridData.reshape((pictureWidth,pictureHight)).T
+        index = index+1;
+    try:
+        grid = np.column_stack((grid,gridRow))
+    except Exception as e:
+        grid = gridRow
+    gridRow = [] #每次添加好之后，需要立刻清理缓存数据
+    # print(grid.shape)
+
+
+# 绘制图像的案例
+# fig, (ax2, ax3) = plt.subplots(nrows=2, figsize=(6,10)) #figsize 是比例
+# ax1.imshow(grid, extent=[0,100,0,1])
+# ax1.set_title('Default')
+
+# ax2.imshow(grid0, extent=[0,100,0,1], aspect='auto',cmap='gray')
+# ax2.set_title('Auto-scaled Aspect')
+
+# fig, ax3 = plt.subplots()
+# ax3.imshow(grid,extent = [0,100,0,100],aspect='auto',cmap='gray')
+# ax3.set_title('Manually Set Aspect')
+#
+# plt.tight_layout()
 # plt.show()
 
-#按照惯例往 X 里面添加 x0
+# one for all
+m,n = Xtrain.shape
+iterations = 1
+lambdas = 1
+alpha = 1
+Xones = np.column_stack((np.ones((m,1)),Xtrain))
 
-Xones = np.column_stack((np.ones((m,1)),X))
-# print(X)
-theta = np.array([1, 1, 1]);
-iterations = 1000
-lambdas = 10
-alpha = 0.05
-J, theta = logisticRegression.logisticRegression(Xones,y,theta,alpha,iterations,lambdas,True)
-print("the best result ",J)
-print(theta)
+m,n=Xones.shape
+theta = np.zeros((1,n))
+# print(theta.shape,"theta")
+# thetaP = logisticRegression.oneVsAll(Xones[0:100,:],ytrain[0:100,:],10,ifMap=False)
+thetaP = logisticRegression.oneVsAll(Xones,ytrain,10,ifMap=False)
+# print(thetaP)
 
-# # #测试所有alpha的值
-# alpha = np.array([0.3, 0.1, 0.03, 0.01])
-# logisticRegression.alphaRateTest(Xones,y,theta,alpha,iterations)
+m,n = Xtest.shape;
+XonesTest = np.column_stack((np.ones((m,1)),Xtest))
+yp = logisticRegression.oneVsAllPridiction(XonesTest,thetaP)
+
+yss = yp - ytest
+ym,yn = yss[np.where(yss==0)[0],0].shape
+print(ym/len(ytest))
+
+# 随机获取一个张图，然后识别他
+# fig, ax3 = plt.subplots()
+# ax3.imshow(grid,extent = [0,100,0,100],aspect='auto',cmap='gray')
+# ax3.set_title('Manually Set Aspect')
+#
+# plt.tight_layout()
+# plt.show()
+
+pictureWidth = 20
+pictureHight = 20
+currentPicIndex = 0
+while True:
+    orders = input("Type any words: ")
+    if(orders=="quit"):
+        break
+    Xpicture = Xtest[currentPicIndex,:]
+
+    m,n = Xpicture.shape;
+    Xpicture = np.column_stack((np.ones((m,1)),Xpicture))
+    yp = logisticRegression.oneVsAllPridiction(Xpicture,thetaP)
+    print(yp)
+
+
+    # 取一张照片
+    gridData0 = Xpicture[:,1::]
+    # 重新排列成图片的样子
+    grid0 = gridData0.reshape(pictureWidth,pictureHight).T
+    fig, ax3 = plt.subplots()
+    ax3.imshow(grid0,extent = [0,10,0,10],aspect='auto',cmap='gray')
+    ax3.set_title(' we get a picture')
+    plt.tight_layout()
+    plt.show()
+
+    currentPicIndex=currentPicIndex+1
+
+
+# pridict
