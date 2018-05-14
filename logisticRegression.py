@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# step1 :   tyr degree data
-# step1 :   feature normalize
-# step2 : 	gradient descent
-# step3 :	alpha rate
+# step1 :   Data change 我们将元数据分成 train test cv
+# step1 :   one for all 进行分类，注意这里的 y 不是 类目，而是不同类目的值，为0，这个类目的值改成1 x 不变进行训练
+# step2 : 	gradient descent 自动化，如果下一个值为负数，就将alpha小的下一个级别，迭代1000次
+# step3 :   predict 预测的话，我们就是需要把 sigam 拿出来计算哪一个类目最接近1，那么预测就是他啦。
 
 # step4 : 我们有了一组比价可靠的 alhpa 和 iteration 值
 # step5 : 大量大量的进行数据计算
@@ -29,6 +29,14 @@ def featureNormalize(X):
     #做完后需要在前面加ones
     X_normal = np.column_stack((np.ones((m,1)),X_normal));
     return X_normal
+
+def machineLearningDataNormalize(x):
+    x = x[0::,1::]; #对X 进行矩阵截取 操作，这里和 matlab不同，前面一个代表的是行数，逗号后面代表的是列数
+    m,n = x.shape;
+    x_norm = np.linalg.norm(x,axis = 1,keepdims = True)
+    x = x/x_norm
+    x = np.column_stack((np.ones((m,1)),x));
+    return x
 
 # 测试每一个 alpha 值对于模型的最优化结果 如果时nan，那么这个alpha就不可用
 def alphaRateTest(X, y, theta,alpha,num_iters):
@@ -173,14 +181,14 @@ def logisticRegression(X,y,theta,alpha=1,num_iters=1,lambdas=1,ifMap=False,ifFea
 
 # 通过自动化的形式，自动的得到最优化数据
 def logisticRegressionAuto(X,y,theta,ifMap):
-    print("============ auto logistic regression start ================")
+    print("============ auto logistic regression start  ================")
     alpha = np.array([0.3, 0.1, 0.03, 0.01,0.001,0.0001,0.00005,0.00001])
     alphaTag = 0
     thetaGrad = 0
     num_iters=1000
     lambdas=10
     ifFeatureMap=False
-    ifFeatureNormalize=False
+    ifFeatureNormalize=True
     returnJ = 0;
     X = np.array(X)
     y = np.array(y)
@@ -189,7 +197,7 @@ def logisticRegressionAuto(X,y,theta,ifMap):
     # print(theta.shape)
     #按照惯例归化一下数据
     if(ifFeatureNormalize):
-        X = featureNormalize(X)
+        X = machineLearningDataNormalize(X)
     #格式化所有数据
     theta = theta.reshape(-1,1);
     y = y.reshape(-1,1);
@@ -225,7 +233,6 @@ def oneVsAll(X,y,num_labels,ifMap=False):
     m,n = X.shape
     all_theta = np.ones((num_labels, n));
     for classsNum in range(0,num_labels):
-
         classssIndex = np.where(y==classsNum)[0]#由于y 是一维的，所以只需要拿到 column 上面的值就可以
         tempY = np.zeros((m,1)) # 获取 生成所有 0 的y
         tempY[classssIndex,:] = 1

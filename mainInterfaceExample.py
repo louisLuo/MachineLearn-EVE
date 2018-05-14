@@ -171,11 +171,6 @@ ytest = y[trainNumber:testNumber,:]
 pictureWidth = 20
 pictureHight = 20
 
-# 取第一张照片
-gridData0 = Xtrain[0,:]
-# 重新排列成图片的样子
-grid0 = gridData0.reshape(pictureWidth,pictureHight)
-
 # 一群数据拿出显示
 display_rows = 10
 display_cols  = 10
@@ -221,7 +216,8 @@ alpha = 1
 Xones = np.column_stack((np.ones((m,1)),Xtrain))
 
 m,n=Xones.shape
-theta = np.zeros((1,n))
+theta = np.random.random_sample((1,n))
+# theta = np.zeros((1,n))
 # print(theta.shape,"theta")
 # thetaP = logisticRegression.oneVsAll(Xones[0:100,:],ytrain[0:100,:],10,ifMap=False)
 thetaP = logisticRegression.oneVsAll(Xones,ytrain,10,ifMap=False)
@@ -247,7 +243,7 @@ pictureWidth = 20
 pictureHight = 20
 currentPicIndex = 0
 while True:
-    orders = input("Type any words: ")
+    orders = input("Type any words: (type quit to quit)")
     if(orders=="quit"):
         break
     Xpicture = Xtest[currentPicIndex,:]
@@ -269,6 +265,77 @@ while True:
     plt.show()
 
     currentPicIndex=currentPicIndex+1
+
+
+
+# =========================================
+# neural networks
+# dataMat = sio.loadmat('Data/ex3data1.mat')
+# # print(dataMat['X'])
+# X = np.mat(dataMat['X'])
+# y = np.mat(dataMat['y'])
+# # 将数据打乱，然后取 6 2 2 比例那train 数据
+# sourceAll = np.column_stack((X,y))
+# p = np.random.permutation(sourceAll.shape[0])
+# X = sourceAll[p, :][:,0:-1]
+# y = sourceAll[p, :][:,-1]
+#
+# # trainNumber = len(X[:,0])*.6
+# m,n = X.shape
+# trainNumber = int(m*.6)
+# CVNumber = int(trainNumber+m*.2)
+# testNumber = int(CVNumber+m*.2)
+#
+# classssIndex = np.where(y==10)[0] # 找到所有的 10 把他们全部变成0
+# y[classssIndex,:] = 0
+#
+# Xtrain = X[0:trainNumber,:]
+# ytrain = y[0:trainNumber,:]
+#
+# XCV = X[trainNumber:CVNumber,:]
+# yCV = y[trainNumber:CVNumber,:]
+#
+# # Xtrain = X
+# Xtest = X[trainNumber:testNumber,:]
+# ytest = y[trainNumber:testNumber,:]
+#
+# pictureWidth = 20
+# pictureHight = 20
+#
+# # 一群数据拿出显示
+# display_rows = 10
+# display_cols  = 10
+# index = 0
+# # 数据是有方向的，这里的照片的数据方向也是不同的，所以需要添加 .T 这个方法来让数据变得正常
+# for i in range(0,display_cols):
+#     for j in range(0,display_rows):
+#         gridData = Xtrain[index,:]
+#         gridData = gridData.reshape((pictureWidth,pictureHight))
+#         try:
+#             gridRow = np.row_stack((gridRow,gridData.T))
+#         except Exception as e:
+#             gridRow = gridData.reshape((pictureWidth,pictureHight)).T
+#         index = index+1;
+#     try:
+#         grid = np.column_stack((grid,gridRow))
+#     except Exception as e:
+#         grid = gridRow
+#     gridRow = [] #每次添加好之后，需要立刻清理缓存数据
+#     # print(grid.shape)
+#
+# fig, ax = plt.subplots()
+# ax.imshow(grid,extent = [0,100,0,100],aspect='auto',cmap='gray')
+# ax.set_title('Manually Set Aspect')
+#
+# plt.tight_layout()
+# plt.show()
+
+# dataMatNN = sio.loadmat('Data/ex3weights.mat')
+# # print(dataMatNN)
+# print(dataMatNN['Theta1'].shape)
+# print(dataMatNN['Theta2'].shape)
+# nn_params = np.column_stack((dataMatNN['Theta1'],dataMatNN['Theta2']))
+
 
 
 # pridict
