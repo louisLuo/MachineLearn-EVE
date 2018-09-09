@@ -384,27 +384,27 @@ if __name__ == '__main__':
     print(hypermeter['w'][0].shape)
 
     # ================== 6.prodiction picture ==================
-    # pictureWidth = 20
-    # pictureHight = 20
-    # currentPicIndex = 0
-    # while True:
-    #     orders = input("Type any words: (type quit to quit)")
-    #     if(orders=="quit"):
-    #         break
-    #     Xpicture = Xtest[currentPicIndex,:]
-    #
-    #     m,n = Xpicture.shape;
-    #     prodictionReuslt = softmaxNumber(FowradPropagationFC(hypermeter,Xpicture,ytest))
-    #     print("我觉得这个图应该是",prodictionReuslt)
-    #
-    #     # 取一张照片
-    #     gridData0 = Xpicture
-    #     # 重新排列成图片的样子
-    #     grid0 = gridData0.reshape(pictureWidth,pictureHight).T
-    #     fig, ax3 = plt.subplots()
-    #     ax3.imshow(grid0,extent = [0,10,0,10],aspect='auto',cmap='gray')
-    #     ax3.set_title(' we get a picture')
-    #     plt.tight_layout()
-    #     plt.show()
-    #
-    #     currentPicIndex=currentPicIndex+1
+    pictureWidth = 20
+    pictureHight = 20
+    currentPicIndex = 0
+    while True:
+        orders = input("Type any words: (type quit to quit)")
+        if(orders=="quit"):
+            break
+        Xpicture = Xtest[currentPicIndex,:]
+
+        m,n = Xpicture.shape;
+        prodictionReuslt = softmaxNumber(FowradPropagationFC(hypermeter,Xpicture,ytest))
+        print("我觉得这个图应该是",prodictionReuslt)
+
+        # 取一张照片
+        gridData0 = Xpicture
+        # 重新排列成图片的样子
+        grid0 = gridData0.reshape(pictureWidth,pictureHight).T
+        fig, ax3 = plt.subplots()
+        ax3.imshow(grid0,extent = [0,10,0,10],aspect='auto',cmap='gray')
+        ax3.set_title(' we get a picture')
+        plt.tight_layout()
+        plt.show()
+
+        currentPicIndex=currentPicIndex+1

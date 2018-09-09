@@ -43,6 +43,7 @@ def initialize_parameters():
     W2 = tf.get_variable('W2',[2,2,8,16],initializer = tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {'W1':W1,'W2':W2}
+    print('initialize finished')
     return parameters
     # ================== 2.check fp function green ==================
 def forward_propagation(X,parameters):
@@ -76,6 +77,7 @@ def forward_propagation(X,parameters):
     #全面连接嘛，就等于 input ，没有hiderlayer，直接output6这样子的神经网络input = (?,64),output=(?,6)
     Z3 = tf.contrib.layers.fully_connected(P2,6,activation_fn=None)
     # print(Z3.shape)
+    print('FP finished')
     return Z3
 
 def compute_cost(Z3,Y):
@@ -92,7 +94,7 @@ def compute_cost(Z3,Y):
     '''
 
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=Z3,labels = Y))
-
+    print('cost finished')
     return cost
     # ================== 3.check bp（model） function green ==================
 def model(X_train,Y_train,X_test,Y_test,learning_rate=0.009,
@@ -147,6 +149,10 @@ def model(X_train,Y_train,X_test,Y_test,learning_rate=0.009,
 
             for minibatch in minibatchs:
                 (minibatch_X,minibatch_Y) = minibatch
+                # 上面声明的所有方法，都是一个架子，因为里面根本就没数据，只有 placeholder
+                # 只有这一步会将所有的方法串联起来
+                # 输入参数只有你声明过 placeholder 的地方才可以，所以这了只有2个
+                # 注意上面所有方法的返回都是一个 tensor flow 对象哦
                 _,temp_cost = sess.run([optimizer,cost],feed_dict={X:minibatch_X,Y:minibatch_Y})
                 minibatch_cost += temp_cost/num_minibatchs
 
@@ -154,6 +160,9 @@ def model(X_train,Y_train,X_test,Y_test,learning_rate=0.009,
                 print('cost after epoch %i:%f'%(epoch,minibatch_cost))
             if print_cost == True and epoch%1 == 0:
                 costs.append(minibatch_cost)
+
+            print(minibatch_cost)
+            print('============')
 
         plt.plot(np.squeeze(costs))
         plt.ylabel('cost')
@@ -250,8 +259,26 @@ if __name__ == '__main__':
     _,_,parameters = model(X_train,Y_train,X_test,Y_test)
 
     #prediction pic
+
     fname = 'datasets/thumbs_up.jpg'
     image = np.array(ndimage.imread(fname,flatten=False))
     my_image = scipy.misc.imresize(image,size=(64,64))
     plt.imshow(my_image)
     plt.show()
+    predict_X = []
+    predict_X.append(my_image)
+    print(parameters['W1'])
+
+    # predict_X = np.random.randn(1,64,64,3)
+    predict_X = np.array(predict_X)
+    print(predict_X.shape)
+    #\\\\\\\\\ 缺少检测部分
+    #\\\\ parameters 是一个 tensor flow 这个parameter 该怎么使用
+    tf.reset_default_graph()
+    with tf.Session() as sess:
+        Xayayay,Y = create_placeholder(64,64,3,6)
+        Z = forward_propagation(Xayayay,parameters)
+        preditcActivation = sess.run(Z,{Xayayay:predict_X})
+        print(preditcActivation)
+    # Z3 = forward_propagation(predict_X,np.array(parameters))
+    # print(Z3)
